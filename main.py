@@ -53,6 +53,7 @@ class App(arcade.View): #pantalla principal del juego
         self.bird_queue = []  # Cola de pájaros disponibles
         self.current_bird_index = 0
         self.init_bird_queue() 
+        self.active_bird = None
 
     def collision_handler(self, arbiter, space, data):
         impulse_norm = arbiter.total_impulse.length
@@ -125,6 +126,11 @@ class App(arcade.View): #pantalla principal del juego
             bird = BirdClass(impulse_vector, x, y, self.space)
             self.sprites.append(bird)
             self.birds.append(bird)
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.SPACE:
+            for bird in self.birds:
+                if bird.has_special_ability and not bird.ability_used:
+                    bird.use_special_ability(self.space, self.sprites)
 
     def on_draw(self):
         self.clear()

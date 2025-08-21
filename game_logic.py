@@ -34,11 +34,11 @@ def get_impulse_vector(start_point: Point2D, end_point: Point2D) -> ImpulseVecto
     distance = get_distance(start_point, end_point)
     angle = get_angle_radians(start_point, end_point)
     
-    # Limitar la distancia máxima para el impulso
+    angle += math.pi  
+    
     max_drag_distance = 200
     normalized_distance = min(distance, max_drag_distance) / max_drag_distance
     
-    # El impulso es proporcional a la distancia de arrastre
-    impulse = normalized_distance * 100  # Escalar a un rango adecuado
+    impulse = normalized_distance * 100  
     
     return ImpulseVector(angle, impulse)
