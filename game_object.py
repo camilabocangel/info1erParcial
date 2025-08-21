@@ -68,7 +68,7 @@ class RedBird(Bird):
             space=space,
             mass=5,
             radius=12,
-            scale=1
+            scale=1.5
         )
 class BlueBird(Bird):
     """Pájaro azul - se divide en 3 pájaros más pequeños"""
@@ -81,7 +81,7 @@ class BlueBird(Bird):
             space=space,
             mass=4,  # Más ligero
             radius=10,
-            scale=0.4
+            scale=0.3
         )
         self.has_special_ability = True
     def use_special_ability(self, space, sprites_list):
@@ -157,7 +157,7 @@ class BombBird(Bird):
             x=x,
             y=y,
             space=space,
-            mass=8,  # Más pesado
+            mass=5,  
             radius=14,
             power_multiplier=40,  
             scale=0.08
