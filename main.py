@@ -2,8 +2,10 @@ import math
 import logging
 import arcade
 import pymunk
+import random
 
-from game_object import Bird, Column, Pig
+
+from game_object import RedBird, BlueBird, ChuckBird, BombBird, Column, Pig
 from game_logic import get_impulse_vector, Point2D, get_distance
 
 logging.basicConfig(level=logging.DEBUG)
@@ -19,7 +21,7 @@ TITLE = "Angry birds"
 GRAVITY = -900
 
 
-class App(arcade.View):
+class App(arcade.View): #pantalla principal del juego
     def __init__(self):
         super().__init__()
         self.background = arcade.load_texture("assets/img/background3.png")
@@ -47,6 +49,10 @@ class App(arcade.View):
         # agregar un collision handler
         self.handler = self.space.add_default_collision_handler()
         self.handler.post_solve = self.collision_handler
+
+        self.bird_queue = []  # Cola de pájaros disponibles
+        self.current_bird_index = 0
+        self.init_bird_queue() 
 
     def collision_handler(self, arbiter, space, data):
         impulse_norm = arbiter.total_impulse.length
@@ -80,6 +86,22 @@ class App(arcade.View):
     def update_collisions(self):
         pass
 
+    def init_bird_queue(self):
+        """Inicializa la cola de pájaros de manera aleatoria"""
+        bird_types = [RedBird, BlueBird, ChuckBird, BombBird]
+        self.bird_queue = random.choices(bird_types, k=5)  # 5 pájaros aleatorios
+
+    def get_next_bird(self):
+        """Obtiene el siguiente pájaro de la cola"""
+        if self.current_bird_index >= len(self.bird_queue):
+            self.init_bird_queue()  # Recargar cola si se acaban
+            self.current_bird_index = 0
+            
+        bird_class = self.bird_queue[self.current_bird_index]
+        self.current_bird_index += 1
+        return bird_class
+    
+
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
             self.start_point = Point2D(x, y)
@@ -97,7 +119,10 @@ class App(arcade.View):
             logger.debug(f"Releasing from: {self.end_point}")
             self.draw_line = False
             impulse_vector = get_impulse_vector(self.start_point, self.end_point)
-            bird = Bird("assets/img/red-bird3.png", impulse_vector, x, y, self.space)
+
+            BirdClass = self.get_next_bird()
+            
+            bird = BirdClass(impulse_vector, x, y, self.space)
             self.sprites.append(bird)
             self.birds.append(bird)
 

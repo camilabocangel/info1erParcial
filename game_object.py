@@ -4,12 +4,12 @@ import pymunk
 from game_logic import ImpulseVector
 
 
-class Bird(arcade.Sprite):
+class Bird(arcade.Sprite): #pajaro rojo 
     """
     Bird class. This represents an angry bird. All the physics is handled by Pymunk,
     the init method only set some initial properties
     """
-    def __init__(
+    def __init__( #inicializa el pajaro
         self,
         image_path: str,
         impulse_vector: ImpulseVector,
@@ -23,8 +23,9 @@ class Bird(arcade.Sprite):
         elasticity: float = 0.8,
         friction: float = 1,
         collision_layer: int = 0,
+        scale: float = 1.0,
     ):
-        super().__init__(image_path, 1)
+        super().__init__(image_path, scale) #cuerpo fisico en pymunk
         # body
         moment = pymunk.moment_for_circle(mass, 0, radius)
         body = pymunk.Body(mass, moment)
@@ -34,7 +35,7 @@ class Bird(arcade.Sprite):
         impulse_pymunk = impulse * pymunk.Vec2d(1, 0)
         # apply impulse
         body.apply_impulse_at_local_point(impulse_pymunk.rotated(impulse_vector.angle))
-        # shape
+        # shape - define la forma fisica del pajaro (circulo)
         shape = pymunk.Circle(body, radius)
         shape.elasticity = elasticity
         shape.friction = friction
@@ -44,6 +45,8 @@ class Bird(arcade.Sprite):
 
         self.body = body
         self.shape = shape
+        self.has_special_ability = False
+        self.ability_used = False
 
     def update(self, delta_time):
         """
@@ -53,7 +56,79 @@ class Bird(arcade.Sprite):
         self.center_y = self.shape.body.position.y
         self.radians = self.shape.body.angle
 
-
+    def use_special_ability(self, space):
+        pass  #Implementar la habilidad especial del pajaro si es necesario
+class RedBird(Bird):
+    """Pájaro rojo básico - sin habilidad especial"""
+    def __init__(self, impulse_vector: ImpulseVector, x: float, y: float, space: pymunk.Space):
+        super().__init__(
+            image_path="assets/img/red-bird3.png",
+            impulse_vector=impulse_vector,
+            x=x,
+            y=y,
+            space=space,
+            mass=5,
+            radius=12,
+            scale=1
+        )
+class BlueBird(Bird):
+    """Pájaro azul - se divide en 3 pájaros más pequeños"""
+    def __init__(self, impulse_vector: ImpulseVector, x: float, y: float, space: pymunk.Space):
+        super().__init__(
+            image_path="assets/img/blue.png",
+            impulse_vector=impulse_vector,
+            x=x,
+            y=y,
+            space=space,
+            mass=4,  # Más ligero
+            radius=10,
+            scale=0.4
+        )
+class ChuckBird(Bird):
+    def __init__(self, impulse_vector: ImpulseVector, x: float, y: float, space: pymunk.Space):
+        super().__init__(
+            image_path="assets/img/chuck.png",
+            impulse_vector=impulse_vector,
+            x=x,
+            y=y,
+            space=space,
+            mass=3,  # Ligero
+            radius=11,
+            power_multiplier=60,  # Más rápido por defecto
+            scale=0.08
+        )
+class BombBird(Bird):
+    def __init__(self, impulse_vector: ImpulseVector, x: float, y: float, space: pymunk.Space):
+        super().__init__(
+            image_path="assets/img/bomb.png",
+            impulse_vector=impulse_vector,
+            x=x,
+            y=y,
+            space=space,
+            mass=8,  # Más pesado
+            radius=14,
+            power_multiplier=40,  
+            scale=0.08
+        )
+        self.has_special_ability = True
+        self.explosion_radius = 150  # Radio de explosión
+        
+    def use_special_ability(self, space):
+        if not self.ability_used:
+            self.ability_used = True
+            # Crear explosión (esto es simplificado)
+            explosion_point = pymunk.Vec2d(self.center_x, self.center_y)
+            
+            # Aplicar fuerza explosiva a objetos cercanos
+            for body in space.bodies:
+                if body.body_type == pymunk.Body.DYNAMIC:
+                    distance = (body.position - explosion_point).length
+                    if distance < self.explosion_radius:
+                        # Fuerza inversamente proporcional a la distancia
+                        force = (self.explosion_radius - distance) * 500
+                        direction = (body.position - explosion_point).normalized()
+                        body.apply_impulse_at_world_point(direction * force, body.position)
+        
 class Pig(arcade.Sprite):
     def __init__(
         self,
