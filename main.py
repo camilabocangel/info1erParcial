@@ -62,7 +62,7 @@ class App(arcade.View):  # pantalla principal del juego
             color=HUD_COLOR, font_size=self.font_size, font_name="Arial"
         )
 
-        self.bird_queue = []  # Cola de pájaros disponibles
+        self.bird_queue = []  # cola de pájaros que tenemos
         self.current_bird_index = 0
         self.init_bird_queue()
         self.active_bird = None
@@ -132,16 +132,15 @@ class App(arcade.View):  # pantalla principal del juego
                     sprite.angle = math.degrees(sprite.body.angle)
     
         for bird in self.birds:
-        # Verificar si el pájaro está muy abajo (tocó el piso)
+        # verifica si el pajaro tocó el piso
             if hasattr(bird, 'body') and bird.body.position.y <= 30:
                 if bird not in self.birds_to_remove:
                     logger.debug(f"Bird touched ground, will remove in 2 seconds: {bird.body.position}")
                     self.birds_to_remove[bird] = 0.0
                 else:
-                    # Actualizar el tiempo acumulado para este pájaro
                     self.birds_to_remove[bird] += delta_time
 
-        # Lista temporal para pájaros que deben ser eliminados (ya pasaron 2 segundos)
+        # lista temporal para pajaros que deben ser eliminados 
         birds_to_remove_now = []
 
         for bird, elapsed_time in list(self.birds_to_remove.items()):
@@ -150,23 +149,23 @@ class App(arcade.View):  # pantalla principal del juego
                 # Remover del diccionario de seguimiento
                 del self.birds_to_remove[bird]
 
-    # Eliminar pájaros que tocaron el piso
+    # eliminar pajaros que tocaron el piso
         for bird in birds_to_remove_now:
             logger.debug(f"Removing bird at position: {bird.body.position if hasattr(bird, 'body') else 'No body'}")
         
-        # Remover de las listas de sprites
+        # remover de las listas de sprites
             if bird in self.sprites:
                 self.sprites.remove(bird)
         
-        # Remover de la lista de pájaros
+        # remover de la lista de pajaros
             if bird in self.birds:
                 self.birds.remove(bird)
         
-        # Remover del espacio de física si tiene body y shape
+        # remover del espacio de fisica 
             if hasattr(bird, 'body') and hasattr(bird, 'shape'):
                 self.space.remove(bird.shape, bird.body)
         
-        # Si era el pájaro activo, actualizar la vista previa
+        # si era el pajaro activo, actualizar la vista previa
             if bird == self.active_bird:
                 self.active_bird = None
                 self.update_preview_bird()
@@ -189,17 +188,16 @@ class App(arcade.View):  # pantalla principal del juego
         self.game_over = True
         self.won = won
 
-    # Cargar la imagen correspondiente usando la ruta del archivo
         if won:
             texture_path = "assets/img/ganaste.png"
         else:
             texture_path = "assets/img/perdiste.png"
 
-    # Escala ajustable
+    # escala ajustable
         scale = 0.5
 
         self.result_sprite = arcade.Sprite(
-            texture_path,  # Pasar la ruta directamente
+            texture_path,  # pasar la ruta directamente
             scale=scale
         )
         
@@ -277,7 +275,7 @@ class App(arcade.View):  # pantalla principal del juego
             self.attempts_text.text = f"Attempts: {self.attempts_left}"
     def on_mouse_motion(self, x, y, dx, dy):
         if self.active_bird and self.draw_line:
-        # Clamp dragging distance (optional, so bird can't go too far)
+        # clamp dragging distance 
             max_pull = 120
             dx = x - self.slingshot_pos.x
             dy = y - (self.slingshot_pos.y + 150)  # use same anchor height
@@ -343,12 +341,12 @@ class App(arcade.View):  # pantalla principal del juego
             ),
         )
 
-        # Sprites del mundo
+        # sprites del mundo
         self.sprites.draw()
         self.score_text.draw()
         self.attempts_text.draw()
 
-        # Línea de apuntado + punto final y trayectoria
+        # linea de apuntado + punto final y trayectoria
         if self.draw_line:
             left_band = (self.slingshot_pos.x - 15, self.slingshot_pos.y + 150)
             right_band = (self.slingshot_pos.x -150, self.slingshot_pos.y + 150)
@@ -363,7 +361,7 @@ class App(arcade.View):  # pantalla principal del juego
                 self.end_point.x, self.end_point.y,
                 arcade.color.DARK_BROWN, 6
             )
-             # Punto final
+             # punto final
 
             arcade.draw_circle_filled(
                 self.end_point.x, self.end_point.y,
