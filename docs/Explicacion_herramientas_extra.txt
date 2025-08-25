@@ -1,0 +1,46 @@
+Angry Birds - Explicacion del manejo de pajaros y fisica
+
+Este README explica detalles importantes del manejo de los pajaros y de la fisica en nuestro juego de Angry Birds usando Python Arcade y Pymunk.
+
+1. Cola de pajaros disponibles (bird_queue)
+- Se mantiene una cola de pajaros para lanzar, almacenando los proximos 5 pajaros aleatorios.
+- Permite tomar el siguiente pajaro sin crear nuevos objetos constantemente.
+- Si se termina la cola, se reinicia automaticamente con nuevos pajaros aleatorios.
+- Ventaja: organiza el flujo de lanzamiento y facilita la vista previa del siguiente pajaro.
+
+2. Lista temporal de pajaros a eliminar (birds_to_remove)
+- Cuando un pajaro toca el suelo, no se elimina de inmediato.
+- Se espera 2 segundos antes de borrarlo, para permitir animaciones de caida o efectos visuales.
+- Mientras tanto, se almacena en un diccionario birds_to_remove con un contador de tiempo.
+- Cada actualizacion (on_update) aumenta el contador hasta llegar a 2 segundos, luego se elimina de la lista principal.
+- Razon: evita modificar la lista principal mientras se recorre, lo que podria generar errores.
+
+3. Uso de hasattr
+- Antes de acceder a atributos de fisica como body o shape, se verifica con hasattr.
+- Algunos pajaros (como la vista previa) no tienen aun estos atributos.
+- Esto previene errores de Python al intentar acceder o eliminar atributos que no existen.
+Ejemplo:
+if hasattr(bird, 'body') and hasattr(bird, 'shape'):
+    self.space.remove(bird.shape, bird.body)
+
+4. Fisica y matematicas usadas
+- La gravedad se define con GRAVITY = -900.
+- El lanzamiento se calcula usando trigonometria:
+self.active_bird.body.apply_impulse_at_local_point(
+    (impulse_vector.impulse * math.cos(impulse_vector.angle) * 50,
+     impulse_vector.impulse * math.sin(impulse_vector.angle) * 50)
+)
+- cos y sin descomponen el impulso en componentes horizontal y vertical.
+- Se aplica un factor de escala 50 para ajustar visualmente la distancia del pajaro.
+- Se dibuja la trayectoria proyectada usando la ecuacion de movimiento con gravedad:
+x = start_x + v_x * t
+y = start_y + v_y * t + 0.5 * g * (t ** 2) * (1 / 60)
+- Se limita la distancia de arrastre del pajaro para no exceder el rango maximo (max_pull = 120).
+
+5. Resumen
+- Cola de pajaros: organiza los lanzamientos y la vista previa.
+- Lista temporal de eliminacion: permite animaciones y evita errores al modificar listas durante el update.
+- hasattr: previene errores de acceso a atributos de fisica que no existen.
+- Fisica: gravedad, impulso, trigonometria y trayectorias proyectadas.
+
+Este README ayuda a entender por que el juego maneja los pajaros y la fisica de esta forma y facilita futuras modificaciones o depuracion.
