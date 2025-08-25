@@ -130,9 +130,9 @@ class ChuckBird(Bird):
             x=x,
             y=y,
             space=space,
-            mass=4,  # Ligero
+            mass=4,  # ligero
             radius=11,
-            power_multiplier=60,  # Más rápido por defecto
+            power_multiplier=60,  # más rápido por defecto
             scale=0.08
         )
         self.has_special_ability = True
